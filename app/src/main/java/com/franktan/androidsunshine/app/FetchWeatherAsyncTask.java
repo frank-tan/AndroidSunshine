@@ -18,17 +18,17 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 
 public class FetchWeatherAsyncTask extends AsyncTask<String, Void, String[]> {
-    private static final String LOG_TAG = FetchWeatherAsyncTask.class.getSimpleName();
-    private ForecastFragment caller;
+    private static final String LOG_TAG = "androidsunshine";
+    private ForecastFragment observer;
     private String[] weatherArray;
 
     public FetchWeatherAsyncTask(ForecastFragment forecastFragment) {
-        caller = forecastFragment;
+        observer = forecastFragment;
     }
 
     @Override
     protected void onPostExecute(String[] strings) {
-        caller.setServerData(weatherArray);
+        observer.setServerData(weatherArray);
     }
 
     @Override

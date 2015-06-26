@@ -1,2 +1,2 @@
 # AndroidSunshine
-A weather app for Android development training
+A weather app for Udacity Android Nanodegree

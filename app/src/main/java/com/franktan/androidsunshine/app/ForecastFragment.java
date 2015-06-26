@@ -13,13 +13,18 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment {
 
-    ArrayAdapter<String> adapter;
+    private ArrayAdapter<String> adapter;
+    private ListView forecastListView;
+    private static final String LOG_TAG = "androidsunshine";
 
     public ForecastFragment() {
     }
@@ -36,6 +41,7 @@ public class ForecastFragment extends Fragment {
 
         new FetchWeatherAsyncTask(this).execute("94043");
         View view = inflater.inflate(R.layout.fragment_main, container, false);
+        forecastListView = (ListView) view.findViewById(R.id.listview_forecast);
 
         return view;
     }
@@ -56,12 +62,15 @@ public class ForecastFragment extends Fragment {
     }
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void setServerData(String[] result){
+        ArrayList<String> resultArrayList = new ArrayList<String>(Arrays.asList(result));
+        if(adapter == null) {
+            adapter = new ArrayAdapter<String>(getActivity(),
+                    R.layout.list_item_forcast, R.id.list_item_forecast_textview, resultArrayList);
 
-        adapter = new ArrayAdapter<String>(getActivity(),
-                    R.layout.list_item_forcast, R.id.list_item_forecast_textview, result);
-
-        ListView forecastListView = (ListView) getView().findViewById(R.id.listview_forecast);
-        forecastListView.setAdapter(adapter);
-
+            forecastListView.setAdapter(adapter);
+        } else {
+            adapter.clear();
+            adapter.addAll(resultArrayList);
+        }
     }
 }

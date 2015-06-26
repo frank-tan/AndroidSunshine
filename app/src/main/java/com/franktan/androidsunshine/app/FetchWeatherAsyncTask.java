@@ -213,4 +213,8 @@ public class FetchWeatherAsyncTask extends AsyncTask<String, Void, String[]> {
         return resultStrs;
 
     }
+
+    public interface AcceptWeatherData {
+        public void setServerData(String[] weatherDataArray);
+    }
 }

@@ -22,7 +22,7 @@ import java.util.Arrays;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ForecastFragment extends Fragment {
+public class ForecastFragment extends Fragment implements FetchWeatherAsyncTask.AcceptWeatherData {
 
     private ArrayAdapter<String> forecastAdapter;
     private ListView forecastListView;
@@ -75,8 +75,8 @@ public class ForecastFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void setServerData(String[] result){
-        ArrayList<String> resultArrayList = new ArrayList<String>(Arrays.asList(result));
+    public void setServerData(String[] weatherDataArray){
+        ArrayList<String> resultArrayList = new ArrayList<String>(Arrays.asList(weatherDataArray));
         if(forecastAdapter == null) {
             forecastAdapter = new ArrayAdapter<String>(getActivity(),
                     R.layout.list_item_forcast, R.id.list_item_forecast_textview, resultArrayList);

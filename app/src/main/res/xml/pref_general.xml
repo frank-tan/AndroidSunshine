@@ -10,6 +10,12 @@
         android:singleLine="true"
         android:maxLines="1" />
 
-
+    <ListPreference
+        android:key="@string/pref_unit_key"
+        android:title="@string/pref_unit_label"
+        android:summary="@string/pref_unit_summary"
+        android:defaultValue="@string/pref_unit_metric"
+        android:entries="@array/unit_array"
+        android:entryValues="@array/unit_array"/>
 
 </PreferenceScreen>

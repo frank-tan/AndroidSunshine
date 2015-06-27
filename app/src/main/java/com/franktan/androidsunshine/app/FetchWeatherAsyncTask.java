@@ -1,7 +1,10 @@
 package com.franktan.androidsunshine.app;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -20,10 +23,14 @@ import java.text.SimpleDateFormat;
 public class FetchWeatherAsyncTask extends AsyncTask<String, Void, String[]> {
     private static final String LOG_TAG = "androidsunshine";
     private ForecastFragment observer;
+    private Context context;
     private String[] weatherArray;
+    private SharedPreferences sharedPreferences;
 
-    public FetchWeatherAsyncTask(ForecastFragment forecastFragment) {
-        observer = forecastFragment;
+    public FetchWeatherAsyncTask(ForecastFragment forecastFragment, Context appContext) {
+        this.observer = forecastFragment;
+        this.context = appContext;
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     @Override
@@ -129,6 +136,17 @@ public class FetchWeatherAsyncTask extends AsyncTask<String, Void, String[]> {
      * Prepare the weather high/lows for presentation.
      */
     private String formatHighLows(double high, double low) {
+
+        String temperatureUnit = sharedPreferences.getString(
+                context.getString(R.string.pref_unit_key),
+                context.getString(R.string.pref_unit_metric));
+        Log.i(LOG_TAG,temperatureUnit);
+
+        if(temperatureUnit.equals(context.getString(R.string.pref_unit_imperial))){
+            Log.i(LOG_TAG,"Converting...");
+            high = high * 2 + 30;
+            low = low * 2 + 30;
+        }
         // For presentation, assume the user doesn't care about tenths of a degree.
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
@@ -200,10 +218,12 @@ public class FetchWeatherAsyncTask extends AsyncTask<String, Void, String[]> {
             // Temperatures are in a child object called "temp".  Try not to name variables
             // "temp" when working with temperature.  It confuses everybody.
             JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
-            double high = temperatureObject.getDouble(OWM_MAX);
-            double low = temperatureObject.getDouble(OWM_MIN);
+            double high, low;
+            high = temperatureObject.getDouble(OWM_MAX);
+            low = temperatureObject.getDouble(OWM_MIN);
 
             highAndLow = formatHighLows(high, low);
+            Log.i(LOG_TAG,highAndLow);
             resultStrs[i] = day + " - " + description + " - " + highAndLow;
         }
 

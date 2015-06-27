@@ -93,10 +93,8 @@ public class FetchWeatherAsyncTask extends AsyncTask<String, Void, String[]> {
                 return null;
             }
             forecastJsonStr = buffer.toString();
-            Log.i(LOG_TAG,forecastJsonStr);
             try {
                 weatherArray = getWeatherDataFromJson(forecastJsonStr,7);
-                Log.i(LOG_TAG,weatherArray[0]);
                 return weatherArray;
             } catch (Exception e){
                 Log.e(LOG_TAG, "Cannot parse json data");
@@ -140,10 +138,8 @@ public class FetchWeatherAsyncTask extends AsyncTask<String, Void, String[]> {
         String temperatureUnit = sharedPreferences.getString(
                 context.getString(R.string.pref_unit_key),
                 context.getString(R.string.pref_unit_metric));
-        Log.i(LOG_TAG,temperatureUnit);
 
         if(temperatureUnit.equals(context.getString(R.string.pref_unit_imperial))){
-            Log.i(LOG_TAG,"Converting...");
             high = high * 2 + 30;
             low = low * 2 + 30;
         }
@@ -223,13 +219,9 @@ public class FetchWeatherAsyncTask extends AsyncTask<String, Void, String[]> {
             low = temperatureObject.getDouble(OWM_MIN);
 
             highAndLow = formatHighLows(high, low);
-            Log.i(LOG_TAG,highAndLow);
             resultStrs[i] = day + " - " + description + " - " + highAndLow;
         }
 
-        for (String s : resultStrs) {
-            Log.v(LOG_TAG, "Forecast entry: " + s);
-        }
         return resultStrs;
 
     }

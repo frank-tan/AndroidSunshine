@@ -3,6 +3,7 @@ package com.franktan.androidsunshine.app;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -25,10 +26,9 @@ import java.util.Arrays;
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment implements FetchWeatherAsyncTask.AcceptWeatherData {
-
+    private SharedPreferences sharedPreferences;
     private ArrayAdapter<String> forecastAdapter;
     private ListView forecastListView;
-    private SharedPreferences sharedPreferences;
     private static final String LOG_TAG = "androidsunshine";
 
     public ForecastFragment() {
@@ -70,15 +70,35 @@ public class ForecastFragment extends Fragment implements FetchWeatherAsyncTask.
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.forecastfragment, menu);
+        inflater.inflate(R.menu.main, menu);
+        //inflater.inflate(R.menu.forecastfragment, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if(id == R.id.action_refresh){
-            updateWeather();
-            return true;
+
+        switch (id){
+            case R.id.action_settings:
+                Intent i = new Intent(getActivity(), SettingsActivity.class);
+                startActivity(i);
+                return true;
+            case R.id.action_get_location:
+                String postCode = sharedPreferences.getString(
+                        getString(R.string.pref_location_key),
+                        getString(R.string.pref_location_default));
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                intent.setData(Uri.parse("geo:0,0?q=" + postCode));
+                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    startActivity(intent);
+                }
+                return true;
+            case R.id.action_refresh:
+                updateWeather();
+                return true;
+            default:
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -101,4 +121,5 @@ public class ForecastFragment extends Fragment implements FetchWeatherAsyncTask.
                 getString(R.string.pref_location_default));
         new FetchWeatherAsyncTask(this,getActivity().getBaseContext()).execute(postCode);
     }
+
 }

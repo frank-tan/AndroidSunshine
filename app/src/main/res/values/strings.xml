@@ -12,6 +12,8 @@
     <string name="pref_unit_summary">The unit used in this app for temperature.</string>
     <string name="pref_unit_metric" translatable="false">Metric</string>
     <string name="pref_unit_imperial" translatable="false">Fahrenheit</string>
+    <string name="get_location">Get Location</string>
+    <string name="share">Share</string>
 
     <string-array name="unit_array">
         <item>Metric</item>

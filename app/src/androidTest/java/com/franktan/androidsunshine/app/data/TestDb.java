@@ -24,15 +24,6 @@ public class TestDb extends AndroidTestCase {
         deleteTheDatabase();
     }
 
-    /*
-        Students: Uncomment this test once you've written the code to create the Location
-        table.  Note that you will have to have chosen the same column names that I did in
-        my solution for this test to compile, so if you haven't yet done that, this is
-        a good time to change your column names to match mine.
-
-        Note that this only tests that the Location table has the correct columns, since we
-        give you the code for the weather table.  This test does not look at the
-     */
     public void testCreateDb() throws Throwable {
         // build a HashSet of all of the table names we wish to look for
         // Note that there will be another table in the DB that stores the
@@ -90,12 +81,6 @@ public class TestDb extends AndroidTestCase {
         db.close();
     }
 
-    /*
-        Students:  Here is where you will build code to test that we can insert and query the
-        location database.  We've done a lot of work for you.  You'll want to look in TestUtilities
-        where you can uncomment out the "createNorthPoleLocationValues" function.  You can
-        also make use of the ValidateCurrentRecord function from within TestUtilities.
-    */
     public void testLocationTable() {
         // First step: Get reference to writable database
         SQLiteDatabase db = new WeatherDbHelper(
@@ -109,12 +94,6 @@ public class TestDb extends AndroidTestCase {
         db.close();
     }
 
-    /*
-        Students:  Here is where you will build code to test that we can insert and query the
-        database.  We've done a lot of work for you.  You'll want to look in TestUtilities
-        where you can use the "createWeatherValues" function.  You can
-        also make use of the validateCurrentRecord function from within TestUtilities.
-     */
     public void testWeatherTable() {
         // First insert the location, and then use the locationRowId to insert
         // the weather. Make sure to cover as many failure cases as you can.
@@ -157,12 +136,6 @@ public class TestDb extends AndroidTestCase {
         return rowId;
     }
 
-
-    /*
-        Students: This is a helper method for the testWeatherTable quiz. You can move your
-        code from testLocationTable to here so that you can call this code from both
-        testWeatherTable and testLocationTable.
-     */
     public long insertLocation() {
         return -1L;
     }

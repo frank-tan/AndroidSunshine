@@ -1,10 +1,8 @@
 package com.franktan.androidsunshine.app;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -19,15 +17,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ForecastFragment extends Fragment implements FetchWeatherAsyncTask.AcceptWeatherData {
+public class ForecastFragment extends Fragment {
     private SharedPreferences sharedPreferences;
-    private ArrayAdapter<String> forecastAdapter;
+    private ArrayAdapter forecastAdapter;
     private ListView forecastListView;
     private static final String LOG_TAG = "androidsunshine";
 
@@ -44,13 +41,19 @@ public class ForecastFragment extends Fragment implements FetchWeatherAsyncTask.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        forecastAdapter = new ArrayAdapter<String>(
+                getActivity(),
+                R.layout.list_item_forcast,
+                R.id.list_item_forecast_textview,
+                new ArrayList<String>());
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         forecastListView = (ListView) view.findViewById(R.id.listview_forecast);
+        forecastListView.setAdapter(forecastAdapter);
         forecastListView.setOnItemClickListener(
                 new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        String text = forecastAdapter.getItem(position);
+                        String text = (String)forecastAdapter.getItem(position);
 
                         Intent goToDetailPage = new Intent(getActivity(), WeatherDetailActivity.class);
                         goToDetailPage.putExtra("detailWeatherText", text);
@@ -102,24 +105,24 @@ public class ForecastFragment extends Fragment implements FetchWeatherAsyncTask.
         }
         return super.onOptionsItemSelected(item);
     }
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void setServerData(String[] weatherDataArray){
-        ArrayList<String> resultArrayList = new ArrayList<String>(Arrays.asList(weatherDataArray));
-        if(forecastAdapter == null) {
-            forecastAdapter = new ArrayAdapter<String>(getActivity(),
-                    R.layout.list_item_forcast, R.id.list_item_forecast_textview, resultArrayList);
-
-            forecastListView.setAdapter(forecastAdapter);
-        } else {
-            forecastAdapter.clear();
-            forecastAdapter.addAll(resultArrayList);
-        }
-    }
+//    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+//    public void onPostExecute(String[] weatherDataArray){
+//        ArrayList<String> resultArrayList = new ArrayList<String>(Arrays.asList(weatherDataArray));
+//        if(forecastAdapter == null) {
+//            forecastAdapter = new ArrayAdapter<String>(getActivity(),
+//                    R.layout.list_item_forcast, R.id.list_item_forecast_textview, resultArrayList);
+//
+//            forecastListView.setAdapter(forecastAdapter);
+//        } else {
+//            forecastAdapter.clear();
+//            forecastAdapter.addAll(resultArrayList);
+//        }
+//    }
     private void updateWeather () {
         String postCode = sharedPreferences.getString(
                 getString(R.string.pref_location_key),
                 getString(R.string.pref_location_default));
-        new FetchWeatherAsyncTask(this,getActivity().getBaseContext()).execute(postCode);
+        new FetchWeatherTask(getActivity(),forecastAdapter).execute(postCode);
     }
 
 }

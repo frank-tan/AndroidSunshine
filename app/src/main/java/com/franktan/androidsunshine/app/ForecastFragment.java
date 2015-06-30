@@ -11,9 +11,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -136,42 +133,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         return view;
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.main, menu);
-        inflater.inflate(R.menu.forecastfragment, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        switch (id){
-            case R.id.action_settings:
-                Intent i = new Intent(getActivity(), SettingsActivity.class);
-                startActivity(i);
-                return true;
-            case R.id.action_get_location:
-                String postCode = sharedPreferences.getString(
-                        getString(R.string.pref_location_key),
-                        getString(R.string.pref_location_default));
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                intent.setData(Uri.parse("geo:0,0?q=" + postCode));
-                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-                    startActivity(intent);
-                }
-                return true;
-            case R.id.action_refresh:
-                updateWeather();
-                return true;
-            default:
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void updateWeather () {
+    public void updateWeather () {
         FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
         String location = Utility.getPreferredLocation(getActivity());
         weatherTask.execute(location);

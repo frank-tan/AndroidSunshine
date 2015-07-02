@@ -130,6 +130,7 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
         if (cursor != null && !cursor.moveToFirst()){
             return;
         }
+        int weatherIcon = Utility.getArtResourceForWeatherCondition(cursor.getInt(COL_WEATHER_CONDITION_ID));
         String dateString = Utility.getFriendlyDayString(getActivity(), cursor.getLong(COL_WEATHER_DATE));
         String description = cursor.getString(COL_WEATHER_DESC);
         boolean isMetric = Utility.isMetric(getActivity());
@@ -147,7 +148,7 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
         mHumidityView.setText(getActivity().getString(R.string.format_humidity, humidity));
         mWindView.setText(Utility.getFormattedWind(getActivity(), wind, windDir));
         mPressureView.setText(getActivity().getString(R.string.format_pressure, pressure));
-        mIconView.setImageResource(R.drawable.cloudsun);
+        mIconView.setImageResource(weatherIcon);
 
         if(mShareActionProvider != null) {
             setShareIntent();

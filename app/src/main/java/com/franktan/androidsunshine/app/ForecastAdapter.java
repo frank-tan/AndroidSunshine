@@ -81,9 +81,9 @@ public class ForecastAdapter extends CursorAdapter {
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        int weatherId = cursor.getInt(ForecastFragment.COL_WEATHER_ID);
+        int weatherId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
         // Use placeholder image for now
-        viewHolder.iconView.setImageResource(R.drawable.cloudsun);
+        viewHolder.iconView.setImageResource(Utility.getIconResourceForWeatherCondition(weatherId));
 
         Long date = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);
         String niceDateString = Utility.getFriendlyDayString(context, date);

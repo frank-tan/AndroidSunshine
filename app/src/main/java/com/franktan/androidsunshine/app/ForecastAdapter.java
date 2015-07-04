@@ -80,10 +80,13 @@ public class ForecastAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
-
+        int viewType = getItemViewType(cursor.getPosition());
         int weatherId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
-        // Use placeholder image for now
-        viewHolder.iconView.setImageResource(Utility.getIconResourceForWeatherCondition(weatherId));
+//        if(viewType == this.VIEW_TYPE_TODAY) {
+        viewHolder.iconView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
+//        } else {
+//            viewHolder.iconView.setImageResource(Utility.getIconResourceForWeatherCondition(weatherId));
+//        }
 
         Long date = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);
         String niceDateString = Utility.getFriendlyDayString(context, date);

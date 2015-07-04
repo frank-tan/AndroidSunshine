@@ -10,6 +10,12 @@ public class WeatherDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather_detail);
+
+        if(savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.weather_detail_container, new WeatherDetailFragment())
+                    .commit();
+        }
     }
 
 }

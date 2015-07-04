@@ -111,7 +111,9 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Intent intent = getActivity().getIntent();
-        if(intent != null) {
+        if(intent == null || intent.getData() == null) {
+            return null;
+        } else {
             return new CursorLoader(
                     getActivity(),
                     intent.getData(),
@@ -120,8 +122,6 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
                     null,
                     null
             );
-        } else {
-            return null;
         }
     }
 

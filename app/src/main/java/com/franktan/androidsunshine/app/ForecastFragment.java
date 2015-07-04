@@ -1,5 +1,6 @@
 package com.franktan.androidsunshine.app;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -24,6 +25,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private ListView forecastListView;
     private static final String LOG_TAG = "androidsunshine";
     private static final int FORECAST_LOADER_ID = 0;
+    private ActivityCallback mParentActivity;
 
     private static final String[] FORECAST_COLUMNS = {
             // In this case the id needs to be fully qualified with a table name, since
@@ -64,6 +66,19 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         setHasOptionsMenu(true);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
 
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // force any activity using this fragment to implement ActivityCallback
+        try {
+            mParentActivity = (ActivityCallback) activity;
+        } catch (ClassCastException  e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement ActivityCallback");
+        }
     }
 
     @Override
@@ -116,23 +131,37 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
             @Override
             public void onItemClick(AdapterView adapterView, View view, int position, long l) {
+                String locationSetting = Utility.getPreferredLocation(getActivity());
+                // move to detail weather activity
+                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
                 // CursorAdapter returns a cursor at the correct position for getItem(), or null
                 // if it cannot seek to that position.
-                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-                if (cursor != null) {
-                    String locationSetting = Utility.getPreferredLocation(getActivity());
+                if(cursor == null){
+                    return;
+                }
+
+                if(mParentActivity.isTwoPaneDevice()) {
+                    // notify activity to update detail weather pane
+                    Uri selectItemUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting,cursor.getLong(COL_WEATHER_DATE));
+                    mParentActivity.onForecastItemSelected(selectItemUri);
+                } else {
                     Intent intent = new Intent(getActivity(), WeatherDetailActivity.class)
                             .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
                                     locationSetting, cursor.getLong(COL_WEATHER_DATE)
                             ));
                     startActivity(intent);
                 }
+
+
             }
         });
 
         return view;
     }
 
+    /**
+     * Call the FeatchWeatherTask async task to get the latest weather forecast information
+     */
     public void updateWeather () {
         FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
         String location = Utility.getPreferredLocation(getActivity());
@@ -144,4 +173,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         getLoaderManager().restartLoader(FORECAST_LOADER_ID, null, this);
     }
 
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface ActivityCallback {
+
+        public void onForecastItemSelected(Uri newUri);
+        public boolean isTwoPaneDevice();
+    }
 }

@@ -11,10 +11,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ForecastFragment.ActivityCallback {
     SharedPreferences sharedPreferences;
     public static final String LOG_TAG = "androidsunshine";
     private final String FORECASTFRAGMENT_TAG = "FORECASTFRAGMENT_TAG";
+    private final String DETAILFRAGMENT_TAG = "DETAILFRAGMENT_TAG";
     private String mLocation;
     private boolean mTwoPane;
 
@@ -31,26 +32,32 @@ public class MainActivity extends AppCompatActivity {
             // if it is not saved. Otherwise let Android system handle it
             if(savedInstanceState == null){
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.weather_detail_container,new WeatherDetailFragment())
+                        .replace(R.id.weather_detail_container,new WeatherDetailFragment(),DETAILFRAGMENT_TAG)
                         .commit();
             }
         } else {
             // smaller screen
             mTwoPane = false;
         }
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-//        String location = Utility.getPreferredLocation( this );
-//        if (location != null && !location.equals(mLocation)) {
-//            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
-//            if(ff != null) {
-//                ff.onLocationChanged();
-//            }
-//        }
-//        mLocation = location;
+        // if user changes the location, we update the fragments used in this activity
+        String location = Utility.getPreferredLocation( this );
+        if (location != null && !location.equals(mLocation)) {
+            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
+            if(ff != null) {
+                ff.onLocationChanged();
+            }
+            WeatherDetailFragment df = (WeatherDetailFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+            if(df != null) {
+                df.onLocationChanged(location);
+            }
+        }
+        mLocation = location;
     }
 
     @Override
@@ -82,12 +89,23 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.action_refresh:
-                ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
+                ForecastFragment ff = (ForecastFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
                 ff.updateWeather();
                 return true;
             default:
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onForecastItemSelected(Uri newUri) {
+        WeatherDetailFragment df = (WeatherDetailFragment) getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+        df.updateUri(newUri);
+    }
+
+    @Override
+    public boolean isTwoPaneDevice() {
+        return mTwoPane;
     }
 }

@@ -1,10 +1,10 @@
 package com.franktan.androidsunshine.app;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -24,9 +24,10 @@ import com.franktan.androidsunshine.app.data.WeatherContract;
 
 
 public class WeatherDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    private SharedPreferences sharedPreferences;
+
     private ShareActionProvider mShareActionProvider;
-    private static final int FORECAST_LOADER_ID = 0;
+    private static final int DETAIL_LOADER = 0;
+    private Uri mUri;
 
     TextView mDayView, mHighView, mLowView, mForecastView, mHumidityView, mWindView, mPressureView;
     ImageView mIconView;
@@ -71,7 +72,14 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+
+        if(mUri == null) {
+            String locationSetting = Utility.getPreferredLocation(getActivity());
+            mUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                    locationSetting,
+                    System.currentTimeMillis()
+            );
+        }
     }
 
     @Override
@@ -104,25 +112,36 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(FORECAST_LOADER_ID, null, this);
+        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Intent intent = getActivity().getIntent();
-        if(intent == null || intent.getData() == null) {
-            return null;
-        } else {
-            return new CursorLoader(
-                    getActivity(),
-                    intent.getData(),
-                    FORECAST_COLUMNS,
-                    null,
-                    null,
-                    null
-            );
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Intent intent = activity.getIntent();
+        if(intent != null) {
+            mUri = intent.getData();
         }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        return new CursorLoader(
+                getActivity(),
+                mUri,
+                FORECAST_COLUMNS,
+                null,
+                null,
+                null
+        );
+
+    }
+
+    public void updateUri(Uri uri){
+        mUri = uri;
+        getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
     }
 
     @Override
@@ -167,6 +186,16 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
         shareIntent.setType("text/plain");
         if (mShareActionProvider != null) {
             mShareActionProvider.setShareIntent(shareIntent);
+        }
+    }
+
+    public void onLocationChanged(String location) {
+        Uri uri = mUri;
+        if (uri != null) {
+            long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+            Uri updatedUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(location, date);
+            mUri = updatedUri;
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
         }
     }
 }

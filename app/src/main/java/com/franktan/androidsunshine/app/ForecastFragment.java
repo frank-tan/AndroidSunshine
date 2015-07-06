@@ -21,11 +21,13 @@ import com.franktan.androidsunshine.app.data.WeatherContract;
 
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private SharedPreferences sharedPreferences;
-    private ForecastAdapter forecastAdapter;
-    private ListView forecastListView;
+    private ForecastAdapter mForecastAdapter;
+    private ListView mForecastListView;
     private static final String LOG_TAG = "androidsunshine";
     private static final int FORECAST_LOADER_ID = 0;
     private ActivityCallback mParentActivity;
+    private int mPosition = 0;
+    private static String SELECTED_KEY = "POSITION";
 
     private static final String[] FORECAST_COLUMNS = {
             // In this case the id needs to be fully qualified with a table name, since
@@ -107,13 +109,15 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        forecastAdapter.swapCursor(cursor);
-
+        mForecastAdapter.swapCursor(cursor);
+        if(mPosition != ListView.INVALID_POSITION) {
+            mForecastListView.setSelection(mPosition);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
-        forecastAdapter.swapCursor(null);
+        mForecastAdapter.swapCursor(null);
 
     }
 
@@ -121,28 +125,30 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        forecastAdapter = new ForecastAdapter(getActivity(), null, 0);
+        mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
 
         View view = inflater.inflate(R.layout.fragment_main, container, false);
-        forecastListView = (ListView) view.findViewById(R.id.listview_forecast);
-        forecastListView.setAdapter(forecastAdapter);
+        mForecastListView = (ListView) view.findViewById(R.id.listview_forecast);
+        mForecastListView.setAdapter(mForecastAdapter);
 
-        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mForecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView adapterView, View view, int position, long l) {
+                mPosition = position;
+
                 String locationSetting = Utility.getPreferredLocation(getActivity());
                 // move to detail weather activity
-                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+                Cursor cursor = (Cursor) adapterView.getItemAtPosition(mPosition);
                 // CursorAdapter returns a cursor at the correct position for getItem(), or null
                 // if it cannot seek to that position.
-                if(cursor == null){
+                if (cursor == null) {
                     return;
                 }
 
-                if(mParentActivity.isTwoPaneDevice()) {
+                if (mParentActivity.isTwoPaneDevice()) {
                     // notify activity to update detail weather pane
-                    Uri selectItemUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting,cursor.getLong(COL_WEATHER_DATE));
+                    Uri selectItemUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, cursor.getLong(COL_WEATHER_DATE));
                     mParentActivity.onForecastItemSelected(selectItemUri);
                 } else {
                     Intent intent = new Intent(getActivity(), WeatherDetailActivity.class)
@@ -156,7 +162,24 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             }
         });
 
+        // restore the active list item position to mPosition variable
+        if(savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            int savedPosition = savedInstanceState.getInt(SELECTED_KEY);
+            if(savedPosition >= 0) {
+                mPosition = savedPosition;
+            }
+        }
+
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // Save the active list item position for future restore
+        if(mPosition != ListView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     /**

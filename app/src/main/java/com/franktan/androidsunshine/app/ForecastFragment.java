@@ -112,6 +112,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         mForecastAdapter.swapCursor(cursor);
         if(mPosition != ListView.INVALID_POSITION) {
             mForecastListView.setSelection(mPosition);
+            mForecastListView.setItemChecked(mPosition, true);
         }
     }
 

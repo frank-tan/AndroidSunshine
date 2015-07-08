@@ -113,6 +113,15 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         if(mPosition != ListView.INVALID_POSITION) {
             mForecastListView.setSelection(mPosition);
             mForecastListView.setItemChecked(mPosition, true);
+            if(mParentActivity.isTwoPaneDevice()) {
+                try {
+                    mForecastListView.performItemClick(
+                            mForecastAdapter.getView(mPosition, null, null),
+                            mPosition,
+                            mForecastAdapter.getItemId(mPosition)
+                    );
+                } catch (IllegalStateException e) {}
+            }
         }
     }
 
@@ -194,6 +203,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     public void onLocationChanged() {
         updateWeather();
+        getLoaderManager().restartLoader(FORECAST_LOADER_ID, null, this);
+    }
+    public void refreshLoader () {
         getLoaderManager().restartLoader(FORECAST_LOADER_ID, null, this);
     }
 

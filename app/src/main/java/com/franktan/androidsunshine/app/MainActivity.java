@@ -14,9 +14,9 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity implements ForecastFragment.ActivityCallback {
     SharedPreferences sharedPreferences;
     public static final String LOG_TAG = "androidsunshine";
-    private final String FORECASTFRAGMENT_TAG = "FORECASTFRAGMENT_TAG";
     private final String DETAILFRAGMENT_TAG = "DETAILFRAGMENT_TAG";
     private String mLocation;
+    private boolean mIsMetric;
     private boolean mTwoPane;
 
     @Override
@@ -24,6 +24,8 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        mLocation = Utility.getPreferredLocation(this);
+        mIsMetric = Utility.isMetric(this);
 
         // if R.id.weather_detail_container exist, it means it is on a screen larger than 600dp on
         // the smaller edge
@@ -47,17 +49,29 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
         super.onResume();
         // if user changes the location, we update the fragments used in this activity
         String location = Utility.getPreferredLocation( this );
+        boolean isMetric = Utility.isMetric(this);
+
+        ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
+        WeatherDetailFragment df = (WeatherDetailFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+
         if (location != null && !location.equals(mLocation)) {
-            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
             if(ff != null) {
                 ff.onLocationChanged();
             }
-            WeatherDetailFragment df = (WeatherDetailFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
             if(df != null) {
                 df.onLocationChanged(location);
             }
+            mLocation = location;
+        } else if (isMetric != mIsMetric) {
+            if(ff != null) {
+                ff.refreshLoader();
+            }
+            if(df != null) {
+                df.refreshLoader();
+            }
+            mIsMetric = isMetric;
         }
-        mLocation = location;
+
     }
 
     @Override

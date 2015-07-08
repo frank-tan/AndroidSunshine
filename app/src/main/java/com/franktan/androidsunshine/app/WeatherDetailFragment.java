@@ -28,6 +28,7 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
     private ShareActionProvider mShareActionProvider;
     private static final int DETAIL_LOADER = 0;
     private Uri mUri;
+    private static String SELECTED_DATE = "SELECTED_DATE";
 
     TextView mDayView, mHighView, mLowView, mForecastView, mHumidityView, mWindView, mPressureView;
     ImageView mIconView;
@@ -72,14 +73,6 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
-        if(mUri == null) {
-            String locationSetting = Utility.getPreferredLocation(getActivity());
-            mUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
-                    locationSetting,
-                    System.currentTimeMillis()
-            );
-        }
     }
 
     @Override
@@ -112,7 +105,9 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+        if(mUri != null) {
+            getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+        }
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -123,6 +118,11 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
         if(intent != null) {
             mUri = intent.getData();
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -176,7 +176,7 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        // nothing need to be done. The method is required to be overriden
     }
 
     private void setShareIntent () {
@@ -197,5 +197,9 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
             mUri = updatedUri;
             getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
         }
+    }
+
+    public void refreshLoader () {
+        getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
     }
 }

@@ -11,8 +11,10 @@ import android.widget.TextView;
 
 public class ForecastAdapter extends CursorAdapter {
     Context mContext;
-    private final int VIEW_TYPE_TODAY = 0;
-    private final int VIEW_TYPE_FUTURE_DAY = 1;
+    private static final String LOG_TAG = "androidsunshine";
+    private final int VIEW_TYPE_LARGE = 0;
+    private final int VIEW_TYPE_STANDARD = 1;
+    private boolean mSpecialTodayView;
 
     public ForecastAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
@@ -28,10 +30,14 @@ public class ForecastAdapter extends CursorAdapter {
         return highLowStr;
     }
 
+    public void setSpecialTodayView(boolean specialTodayView) {
+        this.mSpecialTodayView = specialTodayView;
+    }
+
     /*
-        This is ported from FetchWeatherTask --- but now we go straight from the cursor to the
-        string.
-     */
+            This is ported from FetchWeatherTask --- but now we go straight from the cursor to the
+            string.
+         */
     private String convertCursorRowToUXFormat(Cursor cursor) {
         // get row indices for our cursor
         String highAndLow = formatHighLows(
@@ -52,9 +58,9 @@ public class ForecastAdapter extends CursorAdapter {
         View view;
         int viewType = getItemViewType(cursor.getPosition());
         int layoutId = -1;
-        if(viewType == this.VIEW_TYPE_FUTURE_DAY) {
+        if(viewType == this.VIEW_TYPE_STANDARD) {
             layoutId = R.layout.list_item_forecast;
-        } else if(viewType == this.VIEW_TYPE_TODAY) {
+        } else if(viewType == this.VIEW_TYPE_LARGE) {
             layoutId = R.layout.list_item_forecast_today;
         }
         view = LayoutInflater.from(context).inflate(layoutId, parent, false);
@@ -65,7 +71,7 @@ public class ForecastAdapter extends CursorAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        return (position == 0) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
+        return (position == 0 && mSpecialTodayView) ? VIEW_TYPE_LARGE : VIEW_TYPE_STANDARD;
     }
 
     @Override
@@ -82,7 +88,7 @@ public class ForecastAdapter extends CursorAdapter {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
         int viewType = getItemViewType(cursor.getPosition());
         int weatherId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
-//        if(viewType == this.VIEW_TYPE_TODAY) {
+//        if(viewType == this.VIEW_TYPE_LARGE) {
         viewHolder.iconView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
 //        } else {
 //            viewHolder.iconView.setImageResource(Utility.getIconResourceForWeatherCondition(weatherId));

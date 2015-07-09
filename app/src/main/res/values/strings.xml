@@ -4,7 +4,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="refresh">Refresh</string>
-    <string name="title_activity_weather_detail">WeatherDetailActivity</string>
+    <string name="title_activity_weather_detail">Detail</string>
     <string name="pref_location_label">Location</string>
     <string name="pref_location_key" translatable="false">location</string>
     <string name="pref_location_default" translatable="false">6000,au</string>

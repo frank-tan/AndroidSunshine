@@ -80,14 +80,14 @@ public class WeatherDetailFragment extends Fragment implements LoaderManager.Loa
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_weather_detail, container, false);
 
-        mDayView = (TextView)view.findViewById(R.id.list_item_date_textview);
-        mHighView = (TextView)view.findViewById(R.id.list_item_high_textview);
-        mLowView = (TextView)view.findViewById(R.id.list_item_low_textview);
-        mIconView = (ImageView)view.findViewById(R.id.list_item_icon);
-        mForecastView = (TextView)view.findViewById(R.id.list_item_forecast_textview);
-        mHumidityView = (TextView)view.findViewById(R.id.humidity_textview);
-        mWindView = (TextView)view.findViewById(R.id.wind_textview);
-        mPressureView = (TextView)view.findViewById(R.id.pressure_textview);
+        mDayView = (TextView)view.findViewById(R.id.detail_day_textview);
+        mHighView = (TextView)view.findViewById(R.id.detail_high_textview);
+        mLowView = (TextView)view.findViewById(R.id.detail_low_textview);
+        mIconView = (ImageView)view.findViewById(R.id.detail_icon);
+        mForecastView = (TextView)view.findViewById(R.id.detail_forecast_textview);
+        mHumidityView = (TextView)view.findViewById(R.id.detail_humidity_textview);
+        mWindView = (TextView)view.findViewById(R.id.detail_wind_textview);
+        mPressureView = (TextView)view.findViewById(R.id.detail_pressure_textview);
 
         // Inflate the layout for this fragment
         return view;

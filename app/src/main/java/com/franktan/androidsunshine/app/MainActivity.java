@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
         } else {
             // smaller screen
             mTwoPane = false;
-            getSupportActionBar().setElevation(0f);
+            //getSupportActionBar().setElevation(0f);
         }
 
     }

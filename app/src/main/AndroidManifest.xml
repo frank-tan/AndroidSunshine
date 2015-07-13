@@ -40,6 +40,9 @@
             android:authorities="com.franktan.androidsunshine.app"
             android:name=".data.WeatherProvider" >
         </provider>
+        <service
+            android:name="com.franktan.androidsunshine.app.service.SunshineService"
+            android:exported="false"/>
     </application>
 
 </manifest>

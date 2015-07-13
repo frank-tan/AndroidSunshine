@@ -34,10 +34,6 @@ public class ForecastAdapter extends CursorAdapter {
         this.mSpecialTodayView = specialTodayView;
     }
 
-    /*
-            This is ported from FetchWeatherTask --- but now we go straight from the cursor to the
-            string.
-         */
     private String convertCursorRowToUXFormat(Cursor cursor) {
         // get row indices for our cursor
         String highAndLow = formatHighLows(

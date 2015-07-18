@@ -8,9 +8,11 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
@@ -42,6 +44,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     // Define a variable to contain a content resolver instance
     ContentResolver mContentResolver;
     Context mContext;
+
+    public static final long SYNC_INTERVAL =
+            (long) 60 * 60;
+    public static final long
+            SYNC_FLEXTIME = SYNC_INTERVAL/3L;
 
     /**
      * Set up the sync adapter
@@ -87,10 +94,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String authority,
             ContentProviderClient provider,
             SyncResult syncResult) {
-    /*
-     * Put the data transfer code here.
-     */
-        Log.i(Constants.LOG_TAG, "Now onPerformSync");
+
+        Log.i(Constants.LOG_TAG, "onPerformSync: actual sync happening...");
 
         String locationQuery = Utility.getPreferredLocation(mContext);
 
@@ -179,8 +184,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
     }
+
+    /**
+     * @param forecastJsonStr
+     * @param locationSetting
+     * @return
+     * @throws JSONException
+     */
     private String[] saveWeatherData(String forecastJsonStr,
-                                     String locationSetting)
+                             String locationSetting)
             throws JSONException {
 
         // Now we have a String representing the complete forecast in JSON Format.
@@ -322,7 +334,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         return null;
     }
 
-    public long addLocation(String locationSetting, String cityName, double lat, double lon) {
+    private long addLocation(String locationSetting, String cityName, double lat, double lon) {
         // First, check if the location with this city name exists in the db
         Cursor cursor = mContext.getContentResolver().query(
                 WeatherContract.LocationEntry.CONTENT_URI,
@@ -356,7 +368,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
      *
      * @param context The application context
      */
-    public static Account createSyncAccount(Context context) {
+    private static Account configSyncAccount(Context context) {
         // Create the account type and default account
         Account newAccount = new Account(
                 context.getString(R.string.app_name), context.getString(R.string.sync_account_type));
@@ -364,25 +376,32 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         AccountManager accountManager =
                 (AccountManager) context.getSystemService(
                         Context.ACCOUNT_SERVICE);
-        /*
-         * Add the account and account type, no password or user data
-         * If successful, return the Account object, otherwise report an error.
-         */
-        if (accountManager.addAccountExplicitly(newAccount, null, null)) {
+
+        // If the password doesn't exist, the account doesn't exist, so add the account
+        //if ( null == accountManager.getPassword(newAccount) ) {
+        if (accountManager.getAccountsByType(context.getString(R.string.sync_account_type)).length == 0) {
+            Log.i(Constants.LOG_TAG,"account does not exist. Add new account ");
             /*
-             * If you don't set android:syncable="true" in
-             * in your <provider> element in the manifest,
-             * then call context.setIsSyncable(account, AUTHORITY, 1)
-             * here.
+             * Add the account and account type, no password or user data
+             * If successful, return the Account object, otherwise report an error.
              */
-            return newAccount;
-        } else {
-            /*
-             * The account exists or some other error occurred. Log this, report it,
-             * or handle it internally.
-             */
-            return null;
+            if (!accountManager.addAccountExplicitly(newAccount, null, null)) {
+                /*
+                 * If you don't set android:syncable="true" in
+                 * in your <provider> element in the manifest,
+                 * then call context.setIsSyncable(account, AUTHORITY, 1)
+                 * here.
+                 */
+                Log.i(Constants.LOG_TAG,"failed to add new account");
+                return null;
+            }
+            //account added successfully, set periodical sync
+            Log.i(Constants.LOG_TAG,"add new account successful");
+            addPeriodicSync(context, newAccount);
+            syncWeatherDataNow(context);
         }
+        // if account already exists or added successfully, return the account
+        return newAccount;
     }
 
     /**
@@ -393,8 +412,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
      * XML file
      *
      */
-    public static void syncWeatherData(Context context) {
-        Log.i(Constants.LOG_TAG,"Now syncWeatherData");
+    public static void syncWeatherDataNow(Context context) {
 
         // Pass the settings flags by inserting them in a bundle
         Bundle settingsBundle = new Bundle();
@@ -406,6 +424,42 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
          * Request the sync for the default account, authority, and
          * manual sync settings
          */
-        ContentResolver.requestSync(createSyncAccount(context), context.getString(R.string.content_authority), settingsBundle);
+        Log.i(Constants.LOG_TAG,"Request sync");
+        ContentResolver.requestSync(configSyncAccount(context), context.getString(R.string.content_authority), settingsBundle);
+        Log.i(Constants.LOG_TAG, "sync requested");
+
+    }
+
+    private static void addPeriodicSync(Context context, Account account){
+        Log.i(Constants.LOG_TAG,"addPeriodicSync");
+        String authority = context.getString(R.string.content_authority);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // we can enable inexact timers in our periodic sync
+            SyncRequest request = new SyncRequest.Builder().
+                    syncPeriodic(SYNC_INTERVAL, SYNC_FLEXTIME).
+                    setSyncAdapter(account, authority).
+                    setExtras(Bundle.EMPTY).build();
+            ContentResolver.requestSync(request);
+        } else {
+            ContentResolver.addPeriodicSync(
+                    account,
+                    authority,
+                    Bundle.EMPTY,
+                    SYNC_INTERVAL);
+        }
+        /*
+         * Without calling setSyncAutomatically, our periodic sync will not be enabled.
+         */
+        ContentResolver.setSyncAutomatically(account, context.getString(R.string.content_authority), true);
+    }
+
+    /**
+     * Check if sync account exists. If not, create one and schedule periodic sync.
+     *
+     * @param context
+     */
+    public static void initialize(Context context) {
+        configSyncAccount(context);
     }
 }

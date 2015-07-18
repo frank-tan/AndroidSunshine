@@ -9,6 +9,8 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
+import com.franktan.androidsunshine.app.sync.SyncAdapter;
+
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
  * handset devices, settings are presented as a single list. On tablets,
@@ -67,6 +69,7 @@ public class SettingsActivity extends PreferenceActivity
             // For other preferences, set the summary to the value's simple string representation.
             preference.setSummary(stringValue);
         }
+        SyncAdapter.syncWeatherDataNow(this);
         return true;
     }
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)

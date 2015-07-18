@@ -201,7 +201,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 //        Intent intent = new Intent(getActivity(), SunshineService.class)
 //                .putExtra(Constants.INTENT_LOCATION_TAG, location);
 //        getActivity().startService(intent);
-        SyncAdapter.syncWeatherData(getActivity());
+        SyncAdapter.syncWeatherDataNow(getActivity());
     }
 
     public void onLocationChanged() {

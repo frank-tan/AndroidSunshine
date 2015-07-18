@@ -10,6 +10,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.franktan.androidsunshine.app.sync.SyncAdapter;
+
 
 public class MainActivity extends AppCompatActivity implements ForecastFragment.ActivityCallback {
     SharedPreferences sharedPreferences;
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
             mTwoPane = false;
             //getSupportActionBar().setElevation(0f);
         }
-
+        SyncAdapter.initialize(this);
     }
 
     @Override

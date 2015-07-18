@@ -10,6 +10,8 @@
         android:name="android.permission.WRITE_SYNC_SETTINGS"/>
     <uses-permission
         android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission
+        android:name="android.permission.GET_ACCOUNTS"/>
 
     <application
         android:allowBackup="true"
@@ -53,9 +55,9 @@
         </provider>
 
         <!-- intent service for fetching weather data -->
-        <service
-            android:name=".service.SunshineService"
-            android:exported="false"/>
+        <!--<service-->
+            <!--android:name=".service.SunshineService"-->
+            <!--android:exported="false"/>-->
 
         <!-- authentication service for running weather data sync -->
         <service

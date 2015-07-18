@@ -18,7 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.franktan.androidsunshine.app.data.WeatherContract;
-import com.franktan.androidsunshine.app.service.SunshineService;
+import com.franktan.androidsunshine.app.sync.SyncAdapter;
 
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private SharedPreferences sharedPreferences;
@@ -197,10 +197,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
      * Call the FeatchWeatherTask async task to get the latest weather forecast information
      */
     public void updateWeather () {
-        String location = Utility.getPreferredLocation(getActivity());
-        Intent intent = new Intent(getActivity(), SunshineService.class)
-                .putExtra(Constants.INTENT_LOCATION_TAG, location);
-        getActivity().startService(intent);
+//        String location = Utility.getPreferredLocation(getActivity());
+//        Intent intent = new Intent(getActivity(), SunshineService.class)
+//                .putExtra(Constants.INTENT_LOCATION_TAG, location);
+//        getActivity().startService(intent);
+        SyncAdapter.syncWeatherData(getActivity());
     }
 
     public void onLocationChanged() {

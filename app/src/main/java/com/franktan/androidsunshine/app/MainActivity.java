@@ -13,7 +13,6 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity implements ForecastFragment.ActivityCallback {
     SharedPreferences sharedPreferences;
-    public static final String LOG_TAG = "androidsunshine";
     private final String DETAILFRAGMENT_TAG = "DETAILFRAGMENT_TAG";
     private String mLocation;
     private boolean mIsMetric;

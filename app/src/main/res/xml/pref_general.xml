@@ -18,4 +18,9 @@
         android:entries="@array/unit_array"
         android:entryValues="@array/unit_array"/>
 
+    <CheckBoxPreference
+        android:key="@string/pref_notif_key"
+        android:title="@string/pref_notif_label"
+        android:summary="@string/pref_notif_summary" />
+
 </PreferenceScreen>

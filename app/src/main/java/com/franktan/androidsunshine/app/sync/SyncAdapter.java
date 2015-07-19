@@ -40,6 +40,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 import java.util.Vector;
 
 /**
@@ -346,6 +349,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         WeatherContract.WeatherEntry.CONTENT_URI,
                         records
                 );
+                deleteOldWeatherData();
             }
 
             return null;
@@ -358,7 +362,17 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void deleteOldWeatherData (){
+        Uri uri = WeatherContract.WeatherEntry.CONTENT_URI;
 
+        Calendar date = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        date.add(Calendar.DATE, -1);
+        Log.i(Constants.LOG_TAG,date.toString());
+
+        mContext.getContentResolver().delete(
+                uri,
+                WeatherContract.WeatherEntry.COLUMN_DATE + " <= ?",
+                new String[]{Long.toString(date.getTime().getTime())}
+        );
     }
 
     private long addLocation(String locationSetting, String cityName, double lat, double lon) {
